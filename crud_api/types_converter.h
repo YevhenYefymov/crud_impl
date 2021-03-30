@@ -45,7 +45,7 @@ attr_t crud_to_sdk_attr(const crud_attribute_t in)
     // TODO: need to convert union somehow...
 
     out.id = crud_to_sdk_attr_type(in.id);
-    out.value.u32 = 1;
+    out.value.u32 = in.value.u32;
 
     return out;
 }
@@ -79,7 +79,7 @@ crud_attribute_t sdk_to_crud_attr(const attr_t  in)
     // TODO: need to convert union somehow...
 
     out.id = sdk_to_crud_attr_type(in.id);
-    out.value.u32 = 1;
+    out.value.u32 = in.value.u32;
 
     return out;
 }

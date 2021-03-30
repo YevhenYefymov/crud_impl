@@ -57,7 +57,7 @@ uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* 
 }
 
 
-void delete_node(object_list_t* list, const int id)
+operation_result_t delete_node(object_list_t* list, const int id)
 {
 	object_list_entry_t* node;
 	object_list_entry_t* prev;
@@ -70,7 +70,7 @@ void delete_node(object_list_t* list, const int id)
 	if (node == 0)
 	{
 		printf("entry's not found");
-		return;
+		return RSLT_FAILURE;
 	}
 	
 	if (prev)
@@ -84,6 +84,7 @@ void delete_node(object_list_t* list, const int id)
 			prev->next = node->next;
 		}
 		free(node);
+        return RSLT_SUCCESS;
 	}
 }
 

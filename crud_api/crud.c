@@ -146,8 +146,14 @@ crud_status_t read_object(crud_object_id_t *object_id, crud_attribute_t* attr_li
 
     const uint32_t mask = 0xFFFF;
     const uint32_t id = *object_id & mask;
-    attr_t* sdk_attributes = malloc(sizeof(attr_t));
-    sdk_read_object(id, &sdk_attributes);
+    attr_t* sdk_attributes;
+    operation_result_t sdk_read_result = sdk_read_object(id, &sdk_attributes);
+    
+    if (sdk_read_result != RSLT_SUCCESS)
+    {
+        printf("read_object: failed to read object\n");
+        return CRUD_STATUS_FAILURE;
+    }
 
     get_crud_attr_list(attr_list, sdk_attributes, attr_count);
 
@@ -156,10 +162,44 @@ crud_status_t read_object(crud_object_id_t *object_id, crud_attribute_t* attr_li
 
 crud_status_t update_object(crud_object_id_t *object_id, crud_attribute_t* attr_list, uint32_t attr_count)
 {
-    return 0;
+    if (object_id == 0)
+    {
+        return CRUD_STATUS_FAILURE;
+    }
+
+    const int mask = 0xFFFF;
+    const uint32_t id = (*object_id & mask);
+    attr_t* sdk_attributes = get_sdk_attr_list(attr_list, attr_count);
+
+    operation_result_t sdk_update_result = sdk_update_object(id, sdk_attributes);
+
+    if (sdk_update_result == RSLT_FAILURE)
+    {
+        printf("update_object: failed to update object\n");
+        return CRUD_STATUS_FAILURE;
+    }
+
+    return CRUD_STATUS_SUCCESS;
 }
 
 crud_status_t delete_object(crud_object_id_t *object_id)
 {
-    return 0;
+    if (object_id == 0)
+    {
+        printf("object_id is 0\n");
+        return CRUD_STATUS_FAILURE;
+    }
+
+    const int mask = 0xFFFF;
+    const uint32_t id = (*object_id & mask);
+
+    operation_result_t sdk_delete_result =  sdk_delete_object(id);
+
+    if (sdk_delete_result == RSLT_FAILURE)
+    {
+        printf("delete_object: failed to delete object\n");
+        return CRUD_STATUS_FAILURE;
+    }
+
+    return CRUD_STATUS_SUCCESS;
 }

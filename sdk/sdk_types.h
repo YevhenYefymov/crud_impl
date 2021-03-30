@@ -11,6 +11,12 @@ typedef enum
 
 typedef enum
 {
+    RSLT_SUCCESS,
+    RSLT_FAILURE
+} operation_result_t;
+
+typedef enum
+{
     SDK_OBJ_SWITCH,
     SDK_OBJ_PORT,
     SDK_OBJ_INVALID = -1

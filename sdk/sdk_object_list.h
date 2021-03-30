@@ -35,7 +35,7 @@ uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* 
 
 // finds node with given id and deletes it from the list
 // TODO: return result of the operation
-void delete_node(object_list_t* list, const int id);
+operation_result_t delete_node(object_list_t* list, const int id);
 
 // get node by it's ID
 // return found node or 0 if not found
