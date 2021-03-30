@@ -23,6 +23,10 @@ int is_attribute_read_only(const crud_attr_id_t attr_id);
 // return 1 if CRUD_PORT_ATTR_SPEED is read only, 0 otherwise
 int is_port_speed_read_only(const crud_attribute_t port_state_attr);
 
+// check if any read only attribute is present in the attribute list
+// return 1 if at leas one attribute is read_only, 0 otherwise
+int is_read_only_attribute_present(crud_attribute_t* attr_list, const uint32_t attr_count);
+
 // validate object id
 // return 1 if the object is valid, 0 if the object is invalid or deleted
 int is_object_valid(crud_object_id_t object_id);
@@ -55,38 +59,51 @@ crud_object_id_t generate_object_id(const crud_object_type_t object_type, const 
 
 
 /***************** INTERFACE IMPLEMENTATION *****************/
-crud_status_t create_object(crud_attribute_t* attr_list, uint32_t attr_count, crud_object_id_t* object_id)
+crud_status_t create_switch_object(crud_attribute_t* attr_list, uint32_t attr_count, crud_object_id_t *object_id)
 {
-    if (attr_list == 0)
+    if (is_port_attributes_present(attr_list, attr_count))
     {
-        printf("create_object: attr_list is 0");
+        printf("create_switch_object: port attributes are present in the attributes list\n");
         return CRUD_STATUS_FAILURE;
     }
-
-    if (is_attribute_list_valid(attr_list, attr_count) != 1)
+    if (is_attribute_list_valid(attr_list, attr_count) == 0)
     {
-        printf("create_object: attribute is invalid\n");
+        printf("create_object: at leas one attribute in the attribute list is invalid\n");
         return CRUD_STATUS_ATTR_INVALID;
     }
-
     if (object_id == 0)
     {
-        printf("create_object: object_id is 0");
+        printf("object_id is 0\n");
         return CRUD_STATUS_FAILURE;
     }
 
     attr_t* sdk_attr_list = get_sdk_attr_list(attr_list, attr_count);
     uint32_t sdk_object_id = sdk_create_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), sdk_attr_list);
-    *object_id = generate_object_id(get_object_type(attr_list, attr_count), sdk_object_id);    
+    *object_id = generate_object_id(CRUD_OBJECT_TYPE_SWITCH, sdk_object_id);
 
     return CRUD_STATUS_SUCCESS;
 }
 
-crud_status_t read_object(crud_object_id_t *object_id, crud_attribute_t* attr_list, uint32_t attr_count)
+crud_status_t read_switch_object(crud_object_id_t *object_id, crud_attribute_t* attr_list, uint32_t attr_count)
 {
     if (object_id == 0)
     {
-        printf("read_object: object_id is 0");
+        printf("read_switch_object: object_id is 0");
+        return CRUD_STATUS_FAILURE;
+    }
+    if (attr_list == 0)
+    {
+        printf("read_switch_object: attribute list is 0\n");
+        return CRUD_STATUS_FAILURE;
+    }
+
+    // crud_object_id_t represents 16 bits of object type and 16 bits of object id
+    // shift object_id right by 16 bits to read object's type
+    // 16 bit mask should be applied to read the id
+    const uint32_t type = *object_id >> 16;
+    if (type != CRUD_OBJECT_TYPE_SWITCH)
+    {
+        printf("read_switch_object: object type is not switch\n");
         return CRUD_STATUS_FAILURE;
     }
 
@@ -97,7 +114,7 @@ crud_status_t read_object(crud_object_id_t *object_id, crud_attribute_t* attr_li
     
     if (sdk_read_result != RSLT_SUCCESS)
     {
-        printf("read_object: failed to read object\n");
+        printf("read_switch_object: failed to read object\n");
         return CRUD_STATUS_FAILURE;
     }
 
@@ -106,36 +123,93 @@ crud_status_t read_object(crud_object_id_t *object_id, crud_attribute_t* attr_li
     return CRUD_STATUS_SUCCESS;
 }
 
-crud_status_t update_object(crud_object_id_t *object_id, crud_attribute_t* attr_list, uint32_t attr_count)
+crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t* attr_list, uint32_t attr_count)
 {
+    if (attr_list == 0)
+    {
+        printf("update_switch_object: attr_list is 0\n");
+        return CRUD_STATUS_FAILURE;
+    }
+    if (is_port_attributes_present(attr_list, attr_count))
+    {
+        printf("create_switch_object: port attributes are present in the attributes list\n");
+        return CRUD_STATUS_FAILURE;
+    }
+    if (is_attribute_list_valid(attr_list, attr_count) == 0)
+    {
+        printf("create_object: at leas one attribute in the attribute list is invalid\n");
+        return CRUD_STATUS_ATTR_INVALID;
+    }
     if (object_id == 0)
     {
+        printf("update_switch_object: object_id is 0\n");
         return CRUD_STATUS_FAILURE;
     }
 
+    // crud_object_id_t represents 16 bits of object type and 16 bits of object id
+    // shift object_id right by 16 bits to read object's type
+    // 16 bit mask should be applied to read the id
+    const uint32_t type = *object_id >> 16;
+    if (type != CRUD_OBJECT_TYPE_SWITCH)
+    {
+        printf("update_switch_object: object type is not switch\n");
+        return CRUD_STATUS_FAILURE;
+    }
     const int mask = 0xFFFF;
     const uint32_t id = (*object_id & mask);
-    attr_t* sdk_attributes = get_sdk_attr_list(attr_list, attr_count);
+    attr_t* sdk_attributes;
+    printf("update_switch_object: object id: %d \n", id);
 
+    // check if any of the current attributes is read only
+    operation_result_t sdk_read_result = sdk_read_object(id, &sdk_attributes);
+    if (sdk_read_result != RSLT_SUCCESS)
+    {
+        printf("update_switch_object: failed to read object\n");
+        return CRUD_STATUS_FAILURE;
+    }
+    
+    crud_attribute_t* current_attributes;
+    current_attributes = malloc(sizeof(crud_attribute_t) * attr_count);
+    get_crud_attr_list(current_attributes, sdk_attributes, attr_count);
+    if (is_read_only_attribute_present(current_attributes, attr_count))
+    {
+        printf("update_switch_object: read only attribute is in the current list\n");
+        return CRUD_READ_ONLY;
+    }
+    
+    sdk_attributes = get_sdk_attr_list(attr_list, attr_count);
+    // then the update might be performed
     operation_result_t sdk_update_result = sdk_update_object(id, sdk_attributes);
 
     if (sdk_update_result == RSLT_FAILURE)
     {
-        printf("update_object: failed to update object\n");
+        printf("update_switch_object: failed to update object\n");
         return CRUD_STATUS_FAILURE;
     }
+
+    attr_t* _sdk_attributes;
+    sdk_read_object(id, &_sdk_attributes);
 
     return CRUD_STATUS_SUCCESS;
 }
 
-crud_status_t delete_object(crud_object_id_t *object_id)
+crud_status_t delete_switch_object(crud_object_id_t *object_id)
 {
     if (object_id == 0)
     {
-        printf("object_id is 0\n");
+        printf("delete_switch_object: object_id is 0\n");
         return CRUD_STATUS_FAILURE;
     }
 
+    // crud_object_id_t represents 16 bits of object type and 16 bits of object id
+    // shift object_id right by 16 bits to read object's type
+    // 16 bit mask should be applied to read the id
+    const uint32_t type = *object_id >> 16;
+    if (type != CRUD_OBJECT_TYPE_SWITCH)
+    {
+        printf("delete_switch_object: object type is not switch\n");
+        return CRUD_STATUS_FAILURE;
+    }
     const int mask = 0xFFFF;
     const uint32_t id = (*object_id & mask);
 
@@ -143,7 +217,7 @@ crud_status_t delete_object(crud_object_id_t *object_id)
 
     if (sdk_delete_result == RSLT_FAILURE)
     {
-        printf("delete_object: failed to delete object\n");
+        printf("delete_switch_object: failed to delete object\n");
         return CRUD_STATUS_FAILURE;
     }
 
@@ -246,6 +320,8 @@ int is_attribute_read_only(const crud_attr_id_t attr_id)
     }
 }
 
+// TODO: change this method - take attribute list, seach port_state and port_speed in it, 
+// and only then check the condition
 int is_port_speed_read_only(const crud_attribute_t port_state_attr)
 {
     if (CRUD_PORT_ATTR_STATE != port_state_attr.id)
@@ -254,6 +330,20 @@ int is_port_speed_read_only(const crud_attribute_t port_state_attr)
     }
     
     return (port_state_attr.value.booldata == true);
+}
+
+int is_read_only_attribute_present(crud_attribute_t* attr_list, const uint32_t attr_count)
+{
+    int i;
+    for (i = 0; i < attr_count; ++i)
+    {
+        if (is_attribute_read_only(attr_list[i].id))
+        {
+            return 1;
+        }
+    }
+    
+    return 0;
 }
 
 int is_object_valid(crud_object_id_t object_id)

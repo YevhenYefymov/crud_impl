@@ -48,6 +48,7 @@ operation_result_t sdk_update_object(const int id, attr_t* attributes)
 {
     if (attributes == 0)
     {
+        printf("sdk_update_ojbect: attributes = 0\n");
         return RSLT_FAILURE;
     }
 
