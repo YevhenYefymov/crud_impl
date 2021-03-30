@@ -5,12 +5,6 @@
 
 typedef enum
 {
-    _true, _false
-} __bool;
-#define BOOL __bool
-
-typedef enum
-{
     RSLT_SUCCESS,
     RSLT_FAILURE
 } operation_result_t;
@@ -44,7 +38,7 @@ typedef enum
 
 typedef union attribute_value_t
 {
-    BOOL booldata;
+    int booldata;
     char chardata[32];
     uint8_t u8;
     uint32_t u32;

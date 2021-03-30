@@ -43,9 +43,11 @@ typedef enum
     CRUD_PORT_ATTR_IPV4,         // ip4_t, read-write any non-multicast  
                                  // and non-broadcast 
 
-    CRUD_PORT_ATTR_MTU,          // uint32, [64..9K], read-only 
+    CRUD_PORT_ATTR_MTU,          // uint32, [64..9K], read-only
+
+    // invalid attribute value 
     CRUD_OBJECT_ATTR_INVALID = -1
-} crud_attr_id_t; 
+} crud_attr_id_t;
  
 typedef uint32_t ip4_t; 
 typedef uint32_t crud_object_id_t; 

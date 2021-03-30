@@ -7,7 +7,7 @@
 // input parameters: array of crud_attribute_t, size of array 
 // output parameters: crud_object_id_t 
 // should do: create object (in the internal array), generate OID as an output, return error if input is invalid 
-crud_status_t create_object(crud_attribute_t* attr_list, uint32_t attr_count, crud_object_id_t *object_id); 
+crud_status_t create_object(crud_attribute_t* attr_list, uint32_t attr_count, crud_object_id_t *object_id);
 
 // read_object 
 // input parameters: object ID, array of crud_attribute_t, size of array 
