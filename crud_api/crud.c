@@ -83,21 +83,18 @@ attr_t* get_sdk_attr_list(crud_attribute_t* attr_list, const uint32_t attr_count
     return 0;
 }
 
-crud_attribute_t* get_crud_attr_list(attr_t* attr_list, const uint32_t attr_count)
+void get_crud_attr_list(crud_attribute_t* crud_attr_list, attr_t* attr_list, const uint32_t attr_count)
 {
     crud_attribute_t* buffer;
-    buffer = malloc(sizeof(attr_t) * attr_count);
+    buffer = crud_attr_list;
     if (buffer)
     {
         uint32_t i;
         for (i = 0; i < attr_count; ++i)
         {
             buffer[i] = sdk_to_crud_attr(attr_list[i]);
-            printf("in: %d\t out: %d\n", attr_list[i].id, buffer[i].id);
         }
-        return buffer;
     }
-    return 0;
 }
 
 crud_object_type_t get_object_type(crud_attribute_t* attr_list, const uint32_t attr_count)
@@ -105,7 +102,7 @@ crud_object_type_t get_object_type(crud_attribute_t* attr_list, const uint32_t a
     return CRUD_OBJECT_TYPE_SWITCH;
 }
 
-crud_object_id_t generate_object_id(const crud_object_type_t object_type, const sdk_object_id)
+crud_object_id_t generate_object_id(const crud_object_type_t object_type, const uint32_t sdk_object_id)
 {
     printf("generate_object_id: object type: %d\n", object_type);
     printf("generate_object_id: sdk object id: %d\n", sdk_object_id);
@@ -149,13 +146,11 @@ crud_status_t read_object(crud_object_id_t *object_id, crud_attribute_t* attr_li
 
     const uint32_t mask = 0xFFFF;
     const uint32_t id = *object_id & mask;
-    attr_t* sdk_attributes;
-    sdk_attributes = malloc(sizeof(attr_t) * attr_count);
-    sdk_read_object(id, sdk_attributes);
+    attr_t* sdk_attributes = malloc(sizeof(attr_t));
+    sdk_read_object(id, &sdk_attributes);
 
-    attr_list = get_crud_attr_list(sdk_attributes, attr_count);
+    get_crud_attr_list(attr_list, sdk_attributes, attr_count);
 
-    free(sdk_attributes);
     return CRUD_STATUS_SUCCESS;
 }
 

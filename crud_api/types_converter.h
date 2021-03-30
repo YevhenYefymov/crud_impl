@@ -46,6 +46,8 @@ attr_t crud_to_sdk_attr(const crud_attribute_t in)
 
     out.id = crud_to_sdk_attr_type(in.id);
     out.value.u32 = 1;
+
+    return out;
 }
 
 
@@ -78,6 +80,8 @@ crud_attribute_t sdk_to_crud_attr(const attr_t  in)
 
     out.id = sdk_to_crud_attr_type(in.id);
     out.value.u32 = 1;
+
+    return out;
 }
 
 #endif // TYPES_CONVERTER_H

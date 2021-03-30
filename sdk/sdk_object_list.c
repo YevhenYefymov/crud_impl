@@ -18,7 +18,6 @@ object_list_entry_t* create_node(const object_type_t object_type, attr_t* attr_l
 		node->object_type = object_type;
         node->attr_list = attr_list;
         node->id = ++object_id_generator;
-        printf("create_node: id is %d\n", node->id);
 
 		return node;
 	}
@@ -100,15 +99,4 @@ object_list_entry_t* get_node(object_list_t* list, const int id)
         node = node->next;
     }
     return 0;
-}
-
-void print_list(object_list_t* list)
-{
-	object_list_entry_t* head = list->head;
-	while(head != 0)
-	{
-		printf("%d ", head->id);
-		head = head->next;
-	}
-	printf("\n");
 }
