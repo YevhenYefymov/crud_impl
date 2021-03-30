@@ -27,6 +27,22 @@ int is_port_speed_read_only(const crud_attribute_t port_state_attr);
 // return 1 if the object is valid, 0 if the object is invalid or deleted
 int is_object_valid(crud_object_id_t object_id);
 
+// check if the attribute is of the switch object
+// return 1 if it is, 0 otherwise
+int is_switch_attribute(const crud_attr_id_t attr_id);
+
+// check if attributes related to switch object are present int the attribute list
+// return 1 if at least one such attribute is found, 0 otherwise
+int is_switch_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count);
+
+// check if the attribute is of the port object
+// return 1 if it is, 0 otherwise
+int is_port_attribute(const crud_attr_id_t attr_id);
+
+// check if attributes related to port object are present int the attribute list
+// return 1 if at least one such attribute is found, 0 otherwise
+int is_port_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count);
+
 attr_t* get_sdk_attr_list(crud_attribute_t* attr_list, const uint32_t attr_count);
 
 void get_crud_attr_list(crud_attribute_t* crud_attr_list, attr_t* attr_list, const uint32_t attr_count);
@@ -195,6 +211,12 @@ int is_attribute_valid(const crud_attribute_t attr)
 
 int is_attribute_list_valid(crud_attribute_t* attr_list, const uint32_t attr_count)
 {
+    // check if attribute list contains attributes applicable to different objects
+    if (is_switch_attributes_present(attr_list, attr_count) && is_port_attributes_present(attr_list, attr_count))
+    {
+        return 0;
+    }
+
     uint32_t i;
     for (i = 0; i < attr_count; ++i)
     {
@@ -279,4 +301,60 @@ crud_object_id_t generate_object_id(const crud_object_type_t object_type, const 
     printf("generate_object_id: object type: %d\n", object_type);
     printf("generate_object_id: sdk object id: %d\n", sdk_object_id);
     return (object_type << 16 | sdk_object_id);
+}
+
+int is_switch_attribute(const crud_attr_id_t attr_id)
+{
+    switch (attr_id)
+    {
+        case CRUD_SWITCH_ATTR_NAME:
+        case CRUD_SWITCH_ATTR_HASH_SEED:
+        case CRUD_SWITCH_ATTR_SPLIT_MODE:
+        case CRUD_SWITCH_ATTR_MAX_PORTS:
+            return 1;
+
+        default:
+            return 0;
+    }
+}
+
+int is_switch_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count)
+{
+    int i;
+    for (i = 0; i < attr_count; ++i)
+    {
+        if (is_switch_attribute(attr_list[i].id) == 1)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int is_port_attribute(const crud_attr_id_t attr_id)
+{
+    switch (attr_id)
+    {
+        case CRUD_PORT_ATTR_STATE:
+        case CRUD_PORT_ATTR_SPEED:
+        case CRUD_PORT_ATTR_IPV4:
+        case CRUD_PORT_ATTR_MTU:
+            return 1;
+        
+        default:
+            return 0;
+    }
+}
+
+int is_port_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count)
+{
+    int i;
+    for (i = 0; i < attr_count; ++i)
+    {
+        if (is_port_attribute(attr_list[i].id) == 1)
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
