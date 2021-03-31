@@ -61,6 +61,8 @@ operation_result_t sdk_update_object(const int id, attr_t* attributes)
     object_list_entry_t* object = get_node(object_list, id);
     if (object)
     {
+        free(object->attr_list);
+
         object->attr_list = attributes;
         return RSLT_SUCCESS;
     }

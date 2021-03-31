@@ -116,7 +116,11 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
     crud_attribute_t* current_attributes;
     current_attributes = malloc(sizeof(crud_attribute_t) * attr_count);
     get_crud_attr_list(current_attributes, sdk_attributes, attr_count);
-    if (is_read_only_attribute_present(current_attributes, attr_count))
+    const int is_read_only = is_read_only_attribute_present(current_attributes, attr_count);
+    
+    free(current_attributes);
+
+    if (is_read_only)
     {
         printf("update_switch_object: read only attribute is in the current list\n");
         return CRUD_READ_ONLY;
@@ -131,9 +135,6 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
         printf("update_switch_object: failed to update object\n");
         return CRUD_STATUS_FAILURE;
     }
-
-    attr_t* _sdk_attributes;
-    sdk_read_object(id, &_sdk_attributes);
 
     return CRUD_STATUS_SUCCESS;
 }
