@@ -1,6 +1,8 @@
 #ifndef TYPES_CONVERTER_H
 #define TYPES_CONVERTER_H
 
+#include <string.h>
+
 #include "crud_types.h"
 #include "../sdk/sdk_types.h"
 
@@ -40,15 +42,18 @@ attr_type_t crud_to_sdk_attr_type(const crud_attr_id_t in)
 
 void set_sdk_attr_value(const crud_attribute_t in, attr_t* out)
 {
+    if (out == 0)
+    {
+        printf("set_sdk_attr_value: out is 0\n");
+        return;
+    }
+
     switch (in.id)
     {
         //switch attributes:
         case CRUD_SWITCH_ATTR_NAME:
         {
-            for (int i = 0; i < 32; ++i)
-            {
-                out->value.chardata[i] = in.value.chardata[i];
-            }
+            strncpy(out->value.chardata, in.value.chardata, 32);
             break;
         }
         case CRUD_SWITCH_ATTR_HASH_SEED:
@@ -56,6 +61,7 @@ void set_sdk_attr_value(const crud_attribute_t in, attr_t* out)
         case CRUD_SWITCH_ATTR_MAX_PORTS:
             out->value.u32 = in.value.u32;
             break;
+
         // port attributes
         case CRUD_PORT_ATTR_STATE:
             out->value.booldata = in.value.booldata;
@@ -77,8 +83,6 @@ attr_t crud_to_sdk_attr(const crud_attribute_t in)
 {
     attr_t out;
     
-    // TODO: need to convert union somehow...
-
     out.id = crud_to_sdk_attr_type(in.id);
     set_sdk_attr_value(in, &out);
 
@@ -109,15 +113,18 @@ crud_attr_id_t sdk_to_crud_attr_type(const attr_type_t in)
 
 void set_crud_attr_value(const attr_t in, crud_attribute_t* out)
 {
+    if (out == 0)
+    {
+        printf("set_crud_attr_value: out is 0\n");
+        return;
+    }
+
     switch (in.id)
     {
         //switch attributes:
         case SDK_OBJ_SWITCH_ATTR_NAME:
         {
-            for (int i = 0; i < 32; ++i)
-            {
-                out->value.chardata[i] = in.value.chardata[i];
-            }
+            strncpy(out->value.chardata, in.value.chardata, 32);
             break;
         }
         case SDK_OBJ_SWITCH_ATTR_HASH_SEED:
@@ -125,6 +132,7 @@ void set_crud_attr_value(const attr_t in, crud_attribute_t* out)
         case SDK_OBJ_SWITCH_ATTR_MAX_PORTS:
             out->value.u32 = in.value.u32;
             break;
+            
         // port attributes
         case SDK_OBJ_PORT_ATTR_STATE:
             out->value.booldata = in.value.booldata;
@@ -146,8 +154,6 @@ crud_attribute_t sdk_to_crud_attr(const attr_t  in)
 {
     crud_attribute_t out;
     
-    // TODO: need to convert union somehow...
-
     out.id = sdk_to_crud_attr_type(in.id);
     set_crud_attr_value(in, &out);
 
