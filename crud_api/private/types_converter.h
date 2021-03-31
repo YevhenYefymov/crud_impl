@@ -3,8 +3,8 @@
 
 #include <string.h>
 
-#include "crud_types.h"
-#include "../sdk/sdk_types.h"
+#include "../crud_types.h"
+#include "../../sdk/sdk_types.h"
 
 /*********************************************************/
 /***********************CRUD TO SDK***********************/

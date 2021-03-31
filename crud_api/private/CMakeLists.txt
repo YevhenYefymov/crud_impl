@@ -1,0 +1,1 @@
+#add_library(crud crud.c crud_helper.c types_converter.c)

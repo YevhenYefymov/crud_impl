@@ -1,7 +1,7 @@
 #ifndef CRUD_HELPER_H
 #define CRUD_HELPER_H
 
-#include "crud_types.h"
+#include "../crud_types.h"
 #include "../sdk/sdk_types.h"
 
 /***************** HELPER FUNCTIONS DECLARATION *****************/
