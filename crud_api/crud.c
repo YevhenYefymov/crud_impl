@@ -35,23 +35,22 @@ int is_object_valid(crud_object_id_t object_id);
 // return 1 if it is, 0 otherwise
 int is_switch_attribute(const crud_attr_id_t attr_id);
 
-// check if attributes related to switch object are present int the attribute list
-// return 1 if at least one such attribute is found, 0 otherwise
-int is_switch_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count);
-
 // check if the attribute is of the port object
 // return 1 if it is, 0 otherwise
 int is_port_attribute(const crud_attr_id_t attr_id);
 
-// check if attributes related to port object are present int the attribute list
+// check if attributes of certain object are present in the list
+// takes corresponding predicate as a parameter (e.g. is_switch_attribute)
 // return 1 if at least one such attribute is found, 0 otherwise
-int is_port_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count);
+int is_attribute_type_present(crud_attribute_t* attr_list, const uint32_t attr_count, int(*predicate)(crud_attr_id_t));
 
+// generate new sdk attribute list from given crud attribute list
+// return the newly created sdk attribute list
 attr_t* get_sdk_attr_list(crud_attribute_t* attr_list, const uint32_t attr_count);
 
+// get crud attribute list from sdk attribute list
+// takes crud attribute list to fill as input
 void get_crud_attr_list(crud_attribute_t* crud_attr_list, attr_t* attr_list, const uint32_t attr_count);
-
-crud_object_type_t get_object_type(crud_attribute_t* attr_list, const uint32_t attr_count);
 
 // generate crud object id based on the type of the object (switch, port etc) and the id returned from sdk
 // return generated object id
@@ -61,7 +60,7 @@ crud_object_id_t generate_object_id(const crud_object_type_t object_type, const 
 /***************** INTERFACE IMPLEMENTATION *****************/
 crud_status_t create_switch_object(crud_attribute_t* attr_list, uint32_t attr_count, crud_object_id_t *object_id)
 {
-    if (is_port_attributes_present(attr_list, attr_count))
+    if (is_attribute_type_present(attr_list, attr_count, is_port_attribute))
     {
         printf("create_switch_object: port attributes are present in the attributes list\n");
         return CRUD_STATUS_FAILURE;
@@ -130,7 +129,7 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
         printf("update_switch_object: attr_list is 0\n");
         return CRUD_STATUS_FAILURE;
     }
-    if (is_port_attributes_present(attr_list, attr_count))
+    if (is_attribute_type_present(attr_list, attr_count, is_port_attribute))
     {
         printf("create_switch_object: port attributes are present in the attributes list\n");
         return CRUD_STATUS_FAILURE;
@@ -286,7 +285,7 @@ int is_attribute_valid(const crud_attribute_t attr)
 int is_attribute_list_valid(crud_attribute_t* attr_list, const uint32_t attr_count)
 {
     // check if attribute list contains attributes applicable to different objects
-    if (is_switch_attributes_present(attr_list, attr_count) && is_port_attributes_present(attr_list, attr_count))
+    if (is_attribute_type_present(attr_list, attr_count, is_switch_attribute) && is_attribute_type_present(attr_list, attr_count, is_port_attribute))
     {
         return 0;
     }
@@ -381,11 +380,6 @@ void get_crud_attr_list(crud_attribute_t* crud_attr_list, attr_t* attr_list, con
     }
 }
 
-crud_object_type_t get_object_type(crud_attribute_t* attr_list, const uint32_t attr_count)
-{
-    return CRUD_OBJECT_TYPE_SWITCH;
-}
-
 crud_object_id_t generate_object_id(const crud_object_type_t object_type, const uint32_t sdk_object_id)
 {
     printf("generate_object_id: object type: %d\n", object_type);
@@ -408,19 +402,6 @@ int is_switch_attribute(const crud_attr_id_t attr_id)
     }
 }
 
-int is_switch_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count)
-{
-    int i;
-    for (i = 0; i < attr_count; ++i)
-    {
-        if (is_switch_attribute(attr_list[i].id) == 1)
-        {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 int is_port_attribute(const crud_attr_id_t attr_id)
 {
     switch (attr_id)
@@ -436,15 +417,16 @@ int is_port_attribute(const crud_attr_id_t attr_id)
     }
 }
 
-int is_port_attributes_present(crud_attribute_t* attr_list, const uint32_t attr_count)
+int is_attribute_type_present(crud_attribute_t* attr_list, const uint32_t attr_count, int(*predicate)(crud_attr_id_t))
 {
     int i;
     for (i = 0; i < attr_count; ++i)
     {
-        if (is_port_attribute(attr_list[i].id) == 1)
+        if (predicate(attr_list[i].id) == 1)
         {
             return 1;
         }
     }
+    
     return 0;
 }
