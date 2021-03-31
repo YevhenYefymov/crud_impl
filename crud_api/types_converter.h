@@ -38,6 +38,41 @@ attr_type_t crud_to_sdk_attr_type(const crud_attr_id_t in)
     }
 }
 
+void set_sdk_attr_value(const crud_attribute_t in, attr_t* out)
+{
+    switch (in.id)
+    {
+        //switch attributes:
+        case CRUD_SWITCH_ATTR_NAME:
+        {
+            for (int i = 0; i < 32; ++i)
+            {
+                out->value.chardata[i] = in.value.chardata[i];
+            }
+            break;
+        }
+        case CRUD_SWITCH_ATTR_HASH_SEED:
+        case CRUD_SWITCH_ATTR_SPLIT_MODE:
+        case CRUD_SWITCH_ATTR_MAX_PORTS:
+            out->value.u32 = in.value.u32;
+            break;
+        // port attributes
+        case CRUD_PORT_ATTR_STATE:
+            out->value.booldata = in.value.booldata;
+            break;
+        case CRUD_PORT_ATTR_SPEED:
+        case CRUD_PORT_ATTR_MTU:
+            out->value.u32 = in.value.u32;
+            break;       
+        case CRUD_PORT_ATTR_IPV4:
+            out->value.ip4 = in.value.ip4;
+            break;
+        default:
+            // do not set anything
+            break;
+    }
+}
+
 attr_t crud_to_sdk_attr(const crud_attribute_t in)
 {
     attr_t out;
@@ -45,7 +80,7 @@ attr_t crud_to_sdk_attr(const crud_attribute_t in)
     // TODO: need to convert union somehow...
 
     out.id = crud_to_sdk_attr_type(in.id);
-    out.value.u32 = in.value.u32;
+    set_sdk_attr_value(in, &out);
 
     return out;
 }
@@ -72,6 +107,41 @@ crud_attr_id_t sdk_to_crud_attr_type(const attr_type_t in)
     }
 }
 
+void set_crud_attr_value(const attr_t in, crud_attribute_t* out)
+{
+    switch (in.id)
+    {
+        //switch attributes:
+        case SDK_OBJ_SWITCH_ATTR_NAME:
+        {
+            for (int i = 0; i < 32; ++i)
+            {
+                out->value.chardata[i] = in.value.chardata[i];
+            }
+            break;
+        }
+        case SDK_OBJ_SWITCH_ATTR_HASH_SEED:
+        case SDK_OBJ_SWITCH_ATTR_SPLIT_MODE:
+        case SDK_OBJ_SWITCH_ATTR_MAX_PORTS:
+            out->value.u32 = in.value.u32;
+            break;
+        // port attributes
+        case SDK_OBJ_PORT_ATTR_STATE:
+            out->value.booldata = in.value.booldata;
+            break;
+        case SDK_OBJ_PORT_ATTR_SPEED:
+        case SDK_OBJ_PORT_ATTR_MTU:
+            out->value.u32 = in.value.u32;
+            break;       
+        case SDK_OBJ_PORT_ATTR_IPV4:
+            out->value.ip4 = in.value.ip4;
+            break;        
+        default:
+            // do not set anything
+            break;
+    }
+}
+
 crud_attribute_t sdk_to_crud_attr(const attr_t  in)
 {
     crud_attribute_t out;
@@ -79,7 +149,7 @@ crud_attribute_t sdk_to_crud_attr(const attr_t  in)
     // TODO: need to convert union somehow...
 
     out.id = sdk_to_crud_attr_type(in.id);
-    out.value.u32 = in.value.u32;
+    set_crud_attr_value(in, &out);
 
     return out;
 }

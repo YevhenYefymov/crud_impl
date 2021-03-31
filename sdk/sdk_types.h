@@ -2,6 +2,7 @@
 #define SDK_TYPES_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum
 {
@@ -38,7 +39,7 @@ typedef enum
 
 typedef union attribute_value_t
 {
-    int booldata;
+    bool booldata;
     char chardata[32];
     uint8_t u8;
     uint32_t u32;

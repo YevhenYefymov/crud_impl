@@ -2,12 +2,7 @@
 #define CRUD_TYPES_H
 
 #include <stdint.h>
-
-typedef enum
-{
-    true, false
-} _bool;
-#define bool _bool
+#include <stdbool.h>
 
 typedef enum 
 {
@@ -60,12 +55,12 @@ typedef union _sai_attribute_value_t
     uint32_t u32;
 
     ip4_t ip4;
-} crud_attr_value_t; 
+} crud_attr_value_t;
 
 typedef struct
 {
     crud_attr_id_t id;
     crud_attr_value_t value;
-} crud_attribute_t; 
+} crud_attribute_t;
 
 #endif // CRUD_TYPES_H
