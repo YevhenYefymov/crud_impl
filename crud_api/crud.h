@@ -27,6 +27,4 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
 // should do: remove object. Following read/update should fail. 
 crud_status_t delete_switch_object(crud_object_id_t *object_id);
 
-
-
 #endif // CRUD_H

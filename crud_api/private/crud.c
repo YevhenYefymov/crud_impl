@@ -56,7 +56,7 @@ crud_status_t read_switch_object(crud_object_id_t *object_id, crud_attribute_t* 
     const uint32_t id = *object_id & mask;
 
     attr_t* sdk_attributes;
-    operation_result_t sdk_read_result = sdk_read_object(id, &sdk_attributes);
+    operation_result_t sdk_read_result = sdk_read_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), id, &sdk_attributes);
     
     if (sdk_read_result != RSLT_SUCCESS)
     {
@@ -115,7 +115,7 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
     
     sdk_attributes = get_sdk_attr_list(attr_list, attr_count);
     // then the update might be performed
-    operation_result_t sdk_update_result = sdk_update_object(id, sdk_attributes, attr_count);
+    operation_result_t sdk_update_result = sdk_update_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), id, sdk_attributes, attr_count);
 
     if (sdk_update_result == RSLT_FAILURE)
     {
@@ -146,7 +146,7 @@ crud_status_t delete_switch_object(crud_object_id_t *object_id)
     const int mask = 0xFFFF;
     const uint32_t id = (*object_id & mask);
 
-    operation_result_t sdk_delete_result =  sdk_delete_object(id);
+    operation_result_t sdk_delete_result =  sdk_delete_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), id);
 
     if (sdk_delete_result == RSLT_FAILURE)
     {

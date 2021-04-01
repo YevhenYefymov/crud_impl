@@ -88,6 +88,20 @@ attr_t crud_to_sdk_attr(const crud_attribute_t in)
 /*********************************************************/
 /***********************SDK TO CRUD***********************/
 /*********************************************************/
+crud_object_type_t sdk_to_crud_object_type(const object_type_t in)
+{
+    switch (in)
+    {
+        case CRUD_OBJECT_TYPE_SWITCH:
+            return SDK_OBJ_SWITCH;
+        case CRUD_OBJECT_TYPE_PORT:
+            return SDK_OBJ_PORT;
+        
+        default:
+            return SDK_OBJ_INVALID;
+    }
+}
+
 crud_attr_id_t sdk_to_crud_attr_type(const attr_type_t in)
 {
     switch (in)

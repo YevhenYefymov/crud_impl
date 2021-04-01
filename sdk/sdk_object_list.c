@@ -2,20 +2,14 @@
 #include <stdio.h>
 
 static uint32_t object_id_generator = 0;
-object_list_t* current_object_list;
-object_list_t* get_object_list()
-{
-    return current_object_list;
-}
 
-object_list_entry_t* create_node(const object_type_t object_type, attr_t* attr_list, const uint32_t attr_count)
+object_list_entry_t* create_node(attr_t* attr_list, const uint32_t attr_count)
 {
 	object_list_entry_t* node;
 	node = (object_list_entry_t*) malloc(sizeof(object_list_entry_t));
 	if (node)
 	{
 		node->next = 0;
-		node->object_type = object_type;
         node->attr_list = attr_list;
         node->attr_count = attr_count;
         node->id = ++object_id_generator;
@@ -28,22 +22,35 @@ object_list_entry_t* create_node(const object_type_t object_type, attr_t* attr_l
 
 object_list_t* create_list()
 {
-	current_object_list = (object_list_t*) malloc(sizeof(object_list_t));
-	if (current_object_list)
+	object_list_t* list = (object_list_t*) malloc(sizeof(object_list_t));
+	if (list)
 	{
-		current_object_list->head = 0;
-		return current_object_list;
+		list->head = 0;
+		return list;
 	}
 	return 0;
 }
 
+operation_result_t delete_list(object_list_t* list)
+{
+    object_list_entry_t* node = list->head;
+    object_list_entry_t* next = 0;
+    while (node != 0)
+    {
+        next = node->next;
+        free(node);
+        node = next;
+    }
 
-uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* attr_list, const uint32_t attr_count)
+    free(list);
+}
+
+uint32_t add_node(object_list_t* list, attr_t* attr_list, const uint32_t attr_count)
 {
 	if (list)
 	{
 		object_list_entry_t* node;
-		node = create_node(object_type, attr_list, attr_count);
+		node = create_node(attr_list, attr_count);
 		if (node)
 		{
 			node->next = list->head;
