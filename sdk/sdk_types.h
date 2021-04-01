@@ -19,19 +19,18 @@ typedef enum
 
 typedef enum
 {
+
     // Switch attributes 
-    SDK_OBJ_SWITCH_ATTR_NAME,
-    SDK_OBJ_SWITCH_ATTR_HASH_SEED, 
-    SDK_OBJ_SWITCH_ATTR_SPLIT_MODE,
-    SDK_OBJ_SWITCH_ATTR_MAX_PORTS,
+    SDK_OBJ_SWITCH_ATTR_NAME,           // chardata
+    SDK_OBJ_SWITCH_ATTR_HASH_SEED,      // uint32 [0..max]
+    SDK_OBJ_SWITCH_ATTR_SPLIT_MODE,     // uint32 [0..3]
+    SDK_OBJ_SWITCH_ATTR_MAX_PORTS,      // uint32 [1..32]
 
     // port attributes 
-    SDK_OBJ_PORT_ATTR_STATE,        
-    SDK_OBJ_PORT_ATTR_SPEED,        
-
-    SDK_OBJ_PORT_ATTR_IPV4,       
-
-    SDK_OBJ_PORT_ATTR_MTU,       
+    SDK_OBJ_PORT_ATTR_STATE,            // bool
+    SDK_OBJ_PORT_ATTR_SPEED,            // uint32 [10, 100, 1000]
+    SDK_OBJ_PORT_ATTR_IPV4,             // uint32_t
+    SDK_OBJ_PORT_ATTR_MTU,              // uint32, [64..9K]
 
     // invalid
     SDK_OBJ_ATTR_INVALID  

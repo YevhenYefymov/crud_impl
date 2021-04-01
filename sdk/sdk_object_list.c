@@ -8,7 +8,7 @@ object_list_t* get_object_list()
     return current_object_list;
 }
 
-object_list_entry_t* create_node(const object_type_t object_type, attr_t* attr_list)
+object_list_entry_t* create_node(const object_type_t object_type, attr_t* attr_list, const uint32_t attr_count)
 {
 	object_list_entry_t* node;
 	node = (object_list_entry_t*) malloc(sizeof(object_list_entry_t));
@@ -17,6 +17,7 @@ object_list_entry_t* create_node(const object_type_t object_type, attr_t* attr_l
 		node->next = 0;
 		node->object_type = object_type;
         node->attr_list = attr_list;
+        node->attr_count = attr_count;
         node->id = ++object_id_generator;
 
 		return node;
@@ -37,12 +38,12 @@ object_list_t* create_list()
 }
 
 
-uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* attr_list)
+uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* attr_list, const uint32_t attr_count)
 {
 	if (list)
 	{
 		object_list_entry_t* node;
-		node = create_node(object_type, attr_list);
+		node = create_node(object_type, attr_list, attr_count);
 		if (node)
 		{
 			node->next = list->head;

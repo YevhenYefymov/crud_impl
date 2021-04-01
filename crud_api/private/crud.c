@@ -13,7 +13,7 @@ crud_status_t create_switch_object(crud_attribute_t* attr_list, uint32_t attr_co
     }
     if (is_attribute_list_valid(attr_list, attr_count) == 0)
     {
-        printf("create_object: at leas one attribute in the attribute list is invalid\n");
+        printf("create_object: at least one attribute in the attribute list is invalid\n");
         return CRUD_STATUS_ATTR_INVALID;
     }
     if (object_id == 0)
@@ -23,7 +23,7 @@ crud_status_t create_switch_object(crud_attribute_t* attr_list, uint32_t attr_co
     }
 
     attr_t* sdk_attr_list = get_sdk_attr_list(attr_list, attr_count);
-    const uint32_t sdk_object_id = sdk_create_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), sdk_attr_list);
+    const uint32_t sdk_object_id = sdk_create_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), sdk_attr_list, attr_count);
     *object_id = generate_object_id(CRUD_OBJECT_TYPE_SWITCH, sdk_object_id);
 
     return CRUD_STATUS_SUCCESS;
@@ -77,12 +77,12 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
     }
     if (is_attribute_type_present(attr_list, attr_count, is_port_attribute))
     {
-        printf("create_switch_object: port attributes are present in the attributes list\n");
+        printf("update_switch_object: port attributes are present in the attributes list\n");
         return CRUD_STATUS_FAILURE;
     }
     if (is_attribute_list_valid(attr_list, attr_count) == 0)
     {
-        printf("create_object: at leas one attribute in the attribute list is invalid\n");
+        printf("update_switch_object: at least one attribute in the attribute list is invalid\n");
         return CRUD_STATUS_ATTR_INVALID;
     }
     if (object_id == 0)
@@ -102,33 +102,19 @@ crud_status_t update_switch_object(crud_object_id_t *object_id, crud_attribute_t
     }
     const int mask = 0xFFFF;
     const uint32_t id = (*object_id & mask);
+
     attr_t* sdk_attributes;
-    printf("update_switch_object: object id: %d \n", id);
 
-    // check if any of the current attributes is read only
-    operation_result_t sdk_read_result = sdk_read_object(id, &sdk_attributes);
-    if (sdk_read_result != RSLT_SUCCESS)
+    // check if any read only attribute was requested for update
+    if (is_read_only_attribute_present(attr_list, attr_count))
     {
-        printf("update_switch_object: failed to read object\n");
-        return CRUD_STATUS_FAILURE;
-    }
-    
-    crud_attribute_t* current_attributes;
-    current_attributes = malloc(sizeof(crud_attribute_t) * attr_count);
-    get_crud_attr_list(current_attributes, sdk_attributes, attr_count);
-    const int is_read_only = is_read_only_attribute_present(current_attributes, attr_count);
-    
-    free(current_attributes);
-
-    if (is_read_only)
-    {
-        printf("update_switch_object: read only attribute is in the current list\n");
+        printf("update_switch_object: trying to update read only attribute\n");
         return CRUD_READ_ONLY;
     }
     
     sdk_attributes = get_sdk_attr_list(attr_list, attr_count);
     // then the update might be performed
-    operation_result_t sdk_update_result = sdk_update_object(id, sdk_attributes);
+    operation_result_t sdk_update_result = sdk_update_object(id, sdk_attributes, attr_count);
 
     if (sdk_update_result == RSLT_FAILURE)
     {
