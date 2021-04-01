@@ -60,6 +60,7 @@ uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* 
 
 operation_result_t delete_node(object_list_t* list, const int id)
 {
+    printf("delete_node\n");
 	object_list_entry_t* node;
 	object_list_entry_t* prev;
 	
@@ -85,8 +86,13 @@ operation_result_t delete_node(object_list_t* list, const int id)
 			prev->next = node->next;
 		}
 		free(node);
+
         return RSLT_SUCCESS;
 	}
+    else
+    {
+        printf("delete_node: no prev node\n");
+    }
 }
 
 object_list_entry_t* get_node(object_list_t* list, const int id)
@@ -94,7 +100,7 @@ object_list_entry_t* get_node(object_list_t* list, const int id)
     object_list_entry_t* node = list->head;
     while (node != 0)
     {
-        if (node->id = id)
+        if (id == node->id)
         {
             return node;
         }

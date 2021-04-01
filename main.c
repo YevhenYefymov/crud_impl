@@ -5,35 +5,47 @@
 
 #include "crud_api/crud.h"
 
-int main(int argc, char** argv)
+void crud_test_create()
 {
+    printf("\n\nTEST CREATE\n");
     crud_attribute_t attributes[2];
     uint32_t attr_count = sizeof(attributes) / sizeof(attributes[0]);
     
-    int i;
-    for (i = 0; i < attr_count; ++i)
-    {
-        attributes[i].id = i;
-        attributes[i].value.u32 = i;
-    }
     attributes[0].id = CRUD_SWITCH_ATTR_NAME;
     strncpy(attributes[0].value.chardata, "SWITCH_1", 32);
 
     attributes[1].id = CRUD_SWITCH_ATTR_HASH_SEED;
     attributes[1].value.u32 = 10;
-    
-    /******************* TEST CREATE *******************/
-    printf("\n\nTEST CREATE\n");
+        
     crud_object_id_t object_id;
     crud_status_t create_status = create_switch_object(attributes, attr_count, &object_id);
     assert(create_status == CRUD_STATUS_SUCCESS);
     printf("TEST CREATE OK\n");
+}
 
-    /*******************  TEST READ  *******************/
+void crud_test_read()
+{
     printf("\n\nTEST READ\n");
+    
+    // create the object first
+    crud_attribute_t attributes[2];
+    uint32_t attr_count = sizeof(attributes) / sizeof(attributes[0]);
+    
+    attributes[0].id = CRUD_SWITCH_ATTR_NAME;
+    strncpy(attributes[0].value.chardata, "SWITCH_1", 32);
+    
+    attributes[1].id = CRUD_SWITCH_ATTR_HASH_SEED;
+    attributes[1].value.u32 = 10;
+            
+    crud_object_id_t object_id;
+    crud_status_t create_status = create_switch_object(attributes, attr_count, &object_id);
+    assert(create_status == CRUD_STATUS_SUCCESS);
+
+    // then read the object and verify that values match
     crud_attribute_t read_attributes[attr_count];
     crud_status_t read_status = read_switch_object(&object_id, read_attributes, attr_count);
     assert(read_status == CRUD_STATUS_SUCCESS);
+    int i;
     for (i = 0; i < attr_count; ++i)
     {
         assert(attributes[i].id == read_attributes[i].id);
@@ -41,51 +53,102 @@ int main(int argc, char** argv)
     assert(strcmp(attributes[0].value.chardata, read_attributes[0].value.chardata) == 0);
     assert(attributes[1].value.u32 == attributes[1].value.u32);
     printf("TEST READ OK\n");
+}
 
-
-    /******************* TEST UPDATE *******************/
+void crud_test_update()
+{
     printf("\n\nTEST UPDATE\n");
+    
+    // create the object first
+    crud_attribute_t attributes[2];
+    uint32_t attr_count = sizeof(attributes) / sizeof(attributes[0]);
+    
+    attributes[0].id = CRUD_SWITCH_ATTR_NAME;
+    strncpy(attributes[0].value.chardata, "SWITCH_1", 32);
+    
+    attributes[1].id = CRUD_SWITCH_ATTR_HASH_SEED;
+    attributes[1].value.u32 = 10;
+            
+    crud_object_id_t object_id;
+    crud_status_t create_status = create_switch_object(attributes, attr_count, &object_id);
+    assert(create_status == CRUD_STATUS_SUCCESS);
+
     // update only the name, leave hash seed as it was
-    crud_attribute_t new_attributes[1];
+    const uint32_t changed_attrs_count = 1;
+    crud_attribute_t new_attributes[changed_attrs_count];
     new_attributes[0].id = attributes[0].id;
     strncpy(attributes[0].value.chardata, "NEW_SWITCH_NAME", 32);
 
-    crud_status_t update_status = update_switch_object(&object_id, new_attributes, 1);
+    crud_status_t update_status = update_switch_object(&object_id, new_attributes, changed_attrs_count);
     assert(update_status == CRUD_STATUS_SUCCESS);
 
     // read the object and verify that only the requested attributes were updated
-    read_status = read_switch_object(&object_id, read_attributes, attr_count);
+    crud_attribute_t read_attributes[attr_count];
+    crud_status_t read_status = read_switch_object(&object_id, read_attributes, attr_count);
     assert(read_status == CRUD_STATUS_SUCCESS);
     
     assert(strcmp(new_attributes[0].value.chardata, read_attributes[0].value.chardata) == 0);
     assert(attributes[1].value.u32 == read_attributes[1].value.u32);
     printf("TEST UPDATE OK\n");
+}
 
-
-    /******************* TEST DELETE *******************/
+void crud_test_delete()
+{
     printf("\n\nTEST DELETE\n");
+
+    // create the object first
+    crud_attribute_t attributes[2];
+    uint32_t attr_count = sizeof(attributes) / sizeof(attributes[0]);
+    
+    attributes[0].id = CRUD_SWITCH_ATTR_NAME;
+    strncpy(attributes[0].value.chardata, "SWITCH_1", 32);
+    
+    attributes[1].id = CRUD_SWITCH_ATTR_HASH_SEED;
+    attributes[1].value.u32 = 10;
+            
+    crud_object_id_t object_id;
+    crud_status_t create_status = create_switch_object(attributes, attr_count, &object_id);
+    assert(create_status == CRUD_STATUS_SUCCESS);
+
+    // delete the object
     crud_status_t delete_status = delete_switch_object(&object_id);
     assert(delete_status == CRUD_STATUS_SUCCESS);
     
-    read_status = read_switch_object(&object_id, read_attributes, attr_count);
+    // try to read deleted object - should fail
+    crud_attribute_t read_attributes[attr_count];
+    crud_status_t read_status = read_switch_object(&object_id, read_attributes, attr_count);
     assert(read_status == CRUD_STATUS_FAILURE);
 
-    update_status = update_switch_object(&object_id, new_attributes, attr_count);
+    // try to update deleted object - should fail as well
+    const uint32_t changed_attrs_count = 1;
+    crud_attribute_t new_attributes[changed_attrs_count];
+    new_attributes[0].id = attributes[0].id;
+    strncpy(attributes[0].value.chardata, "NEW_SWITCH_NAME", 32);
+    crud_status_t update_status = update_switch_object(&object_id, new_attributes, 1);
     assert(update_status == CRUD_STATUS_FAILURE);
     printf("TEST DELETE OK\n");
+}
 
-
-    /******************* TEST PORT ATTRIBUTES *******************/
-    printf("\n\nTEST PORT_ATTRIBUTES\n");
+void crud_test_create_switch_with_port_attributes()
+{
+    printf("\n\nTEST CREATE SWITCH WITH PORT_ATTRIBUTES\n");
+    
+    // create list of port attributes
     crud_attribute_t port_attrs[2];
+    uint32_t attr_count = sizeof(port_attrs) / sizeof(port_attrs[0]);
     port_attrs[0].id = CRUD_PORT_ATTR_IPV4;
     port_attrs[1].id = CRUD_PORT_ATTR_MTU;
-    create_status = create_switch_object(port_attrs, 2, &object_id);
-    assert(create_status == CRUD_STATUS_FAILURE);
-    printf("TEST PORT ATTRIBUTES OK\n");
 
-    /******************* TEST UPDATE READ ONLY *******************/
-    printf("\n\nTEST UPDATE READ ONLY\n");
+    // then try to create switch object with such list - this should fail
+    crud_object_id_t object_id;
+    crud_status_t create_status = create_switch_object(port_attrs, attr_count, &object_id);
+    assert(create_status == CRUD_STATUS_FAILURE);
+    printf("TEST CREATE SWITCH WITH PORT_ATTRIBUTES OK\n");
+}
+
+void crud_test_update_read_only_attributes()
+{
+    printf("\n\nTEST UPDATE READ ONLY ATTRIBUTES\n");
     crud_attribute_t read_only_attrs[2];
 
     read_only_attrs[0].id = CRUD_SWITCH_ATTR_NAME; // this one's not read only
@@ -94,30 +157,37 @@ int main(int argc, char** argv)
     read_only_attrs[1].value.u32 = 10;
 
     // create object
-    crud_object_id_t read_only_object;
-    crud_status_t read_only_create_status = create_switch_object(read_only_attrs, 2, &read_only_object);
+    crud_object_id_t object_id;
+    crud_status_t read_only_create_status = create_switch_object(read_only_attrs, 2, &object_id);
     assert(read_only_create_status == CRUD_STATUS_SUCCESS);
 
     // try to update the name attribute - should succeed
-    crud_attribute_t* new_name = malloc(sizeof(crud_attribute_t));
-    if (new_name)
-    {
-        new_name->id = CRUD_SWITCH_ATTR_NAME;
-        strncpy(new_name->value.chardata, "MY_SWITCH", 32);
-    }
-    crud_status_t update_name_stats = update_switch_object(&read_only_object, new_name, 1);
-    assert(update_name_stats == CRUD_STATUS_SUCCESS);
+    crud_attribute_t new_name[1];
+    new_name[0].id = CRUD_SWITCH_ATTR_NAME;
+    strncpy(new_name[0].value.chardata, "MY_SWITCH", 32);
+
+    crud_status_t update_name_status = update_switch_object(&object_id, new_name, 1);
+    assert(update_name_status == CRUD_STATUS_SUCCESS);
 
     // now try to update max ports value - this should fail
-    crud_attribute_t* new_max_ports = malloc(sizeof(crud_attribute_t));
-    if (new_max_ports)
-    {
-        new_max_ports->id = CRUD_SWITCH_ATTR_MAX_PORTS;
-        new_max_ports->value.u32 = 20;
-    }
-    crud_status_t update_max_ports_status = update_switch_object(&read_only_object, new_max_ports, 1);
+    crud_attribute_t new_max_ports[1];
+    new_max_ports[0].id = CRUD_SWITCH_ATTR_MAX_PORTS;
+    new_max_ports[0].value.u32 = 20;
+
+    crud_status_t update_max_ports_status = update_switch_object(&object_id, new_max_ports, 1);
     assert(update_max_ports_status == CRUD_READ_ONLY);
 
-    printf("TEST UPDATE READ ONLY OK\n");
+    printf("TEST UPDATE READ ONLY ATTRIBUTES OK\n");
+}
+
+int main(int argc, char** argv)
+{
+    crud_test_create();
+    crud_test_read();
+    crud_test_update();
+    crud_test_delete();
+    crud_test_create_switch_with_port_attributes();
+    crud_test_update_read_only_attributes();
+
     return 0;
 }

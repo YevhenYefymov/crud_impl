@@ -54,6 +54,7 @@ crud_status_t read_switch_object(crud_object_id_t *object_id, crud_attribute_t* 
 
     const uint32_t mask = 0xFFFF;
     const uint32_t id = *object_id & mask;
+
     attr_t* sdk_attributes;
     operation_result_t sdk_read_result = sdk_read_object(id, &sdk_attributes);
     
