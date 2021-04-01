@@ -5,6 +5,9 @@
 
 #include "crud_api/crud.h"
 
+// test create_switch_object function
+// a new switch object should be created and the positive status of
+// the operation should be returned
 void crud_test_create()
 {
     printf("\n\nTEST CREATE\n");
@@ -23,6 +26,9 @@ void crud_test_create()
     printf("TEST CREATE OK\n");
 }
 
+// test read_switch_object function
+// should verify that read attribute list matches the one that
+// was passed during the creation of the object
 void crud_test_read()
 {
     printf("\n\nTEST READ\n");
@@ -55,6 +61,10 @@ void crud_test_read()
     printf("TEST READ OK\n");
 }
 
+// test update_switch_object function
+// should assign new values to the attributes of the object,
+// read the object after update and verify that
+// attributes were changed
 void crud_test_update()
 {
     printf("\n\nTEST UPDATE\n");
@@ -92,6 +102,9 @@ void crud_test_update()
     printf("TEST UPDATE OK\n");
 }
 
+// test delete_switch_object function
+// should delete object with given id and verify
+// that this object can't be read or updated
 void crud_test_delete()
 {
     printf("\n\nTEST DELETE\n");
@@ -129,6 +142,9 @@ void crud_test_delete()
     printf("TEST DELETE OK\n");
 }
 
+// test calling create_switch_object with port attributes
+// an attempt to create switch object with port (or any other non-switch)
+// attributes should fail
 void crud_test_create_switch_with_port_attributes()
 {
     printf("\n\nTEST CREATE SWITCH WITH PORT_ATTRIBUTES\n");
@@ -146,6 +162,8 @@ void crud_test_create_switch_with_port_attributes()
     printf("TEST CREATE SWITCH WITH PORT_ATTRIBUTES OK\n");
 }
 
+// test calling update_switch_object with a read only attribute
+// an attempt to modify a read only attribute of an object should fail
 void crud_test_update_read_only_attributes()
 {
     printf("\n\nTEST UPDATE READ ONLY ATTRIBUTES\n");

@@ -60,7 +60,6 @@ uint32_t add_node(object_list_t* list, const object_type_t object_type, attr_t* 
 
 operation_result_t delete_node(object_list_t* list, const int id)
 {
-    printf("delete_node\n");
 	object_list_entry_t* node;
 	object_list_entry_t* prev;
 	
