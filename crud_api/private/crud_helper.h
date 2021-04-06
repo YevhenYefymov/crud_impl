@@ -28,6 +28,10 @@ int is_port_speed_read_only(const crud_attribute_t port_state_attr);
 // return 1 if at leas one attribute is read_only, 0 otherwise
 int is_read_only_attribute_present(crud_attribute_t* attr_list, const uint32_t attr_count);
 
+// check if a duplicate of an attribute located at index is present
+// return 1 if there's at least one duplicate, 0 otherwise
+int search_for_duplicate(crud_attribute_t* attr_list, const int index, const uint32_t attr_count);
+
 // validate object id
 // return 1 if the object is valid, 0 if the object is invalid or deleted
 int is_object_valid(crud_object_id_t object_id);

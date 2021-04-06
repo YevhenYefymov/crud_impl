@@ -6,24 +6,32 @@
 
 crud_status_t create_switch_object(crud_attribute_t* attr_list, uint32_t attr_count, crud_object_id_t *object_id)
 {
-    if (is_attribute_type_present(attr_list, attr_count, is_port_attribute))
-    {
-        printf("create_switch_object: port attributes are present in the attributes list\n");
-        return CRUD_STATUS_FAILURE;
-    }
-    if (is_attribute_list_valid(attr_list, attr_count) == 0)
-    {
-        printf("create_object: at least one attribute in the attribute list is invalid\n");
-        return CRUD_STATUS_ATTR_INVALID;
-    }
     if (object_id == 0)
     {
         printf("object_id is 0\n");
         return CRUD_STATUS_FAILURE;
     }
+    if (is_attribute_list_valid(attr_list, attr_count) == 0)
+    {
+        printf("create_object: at least one attribute in the attribute list is invalid\n");
+        *object_id = 0;
+        return CRUD_STATUS_ATTR_INVALID;
+    }
+    if (is_attribute_type_present(attr_list, attr_count, is_port_attribute))
+    {
+        *object_id = 0;
+        printf("create_switch_object: port attributes are present in the attributes list\n");
+        return CRUD_STATUS_FAILURE;
+    }
 
     attr_t* sdk_attr_list = get_sdk_attr_list(attr_list, attr_count);
     const uint32_t sdk_object_id = sdk_create_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), sdk_attr_list, attr_count);
+
+    if (sdk_object_id == 0) // TODO: return operation status instead of object id
+    {
+        return CRUD_STATUS_FAILURE;
+    }
+
     *object_id = generate_object_id(CRUD_OBJECT_TYPE_SWITCH, sdk_object_id);
 
     return CRUD_STATUS_SUCCESS;

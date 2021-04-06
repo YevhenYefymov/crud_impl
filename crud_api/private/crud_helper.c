@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /***************** HELPER FUNCTIONS DEFINITION *****************/
 int is_attribute_valid(const crud_attribute_t attr)
@@ -15,10 +16,11 @@ int is_attribute_valid(const crud_attribute_t attr)
             return 1;       
         case CRUD_SWITCH_ATTR_HASH_SEED:
         {
-            if (attr.value.u32 < 999 /* TODO: define MAX value for hash seed */)
+            if (attr.value.u32 < UINT32_MAX)
             {
                 return 1;
             }
+            break;
         }
         case CRUD_SWITCH_ATTR_SPLIT_MODE:
         {
@@ -26,13 +28,15 @@ int is_attribute_valid(const crud_attribute_t attr)
             {
                 return 1;
             }
+            break;
         }
         case CRUD_SWITCH_ATTR_MAX_PORTS:
         {
-            if ((attr.value.u32 > 1) && (attr.value.u32 < 32))
+            if ((attr.value.u32 >= 1) && (attr.value.u32 <= 32))
             {
                 return 1;
             }
+            break;
         }
 
         // port attributes 
@@ -44,6 +48,7 @@ int is_attribute_valid(const crud_attribute_t attr)
             {
                 return 1;
             }
+            break;
         }
         case CRUD_PORT_ATTR_IPV4:
             return 1;
@@ -53,17 +58,24 @@ int is_attribute_valid(const crud_attribute_t attr)
             {
                 return 1;
             }
+            break;
         }
 
         default:
             return 0;
     }
+    printf("attr %d with value %d is invalid\n", attr.id, attr.value.u32);
 
     return 0;
 }
 
 int is_attribute_list_valid(crud_attribute_t* attr_list, const uint32_t attr_count)
 {
+    if ((attr_list == 0) || (attr_count == 0))
+    {
+        return 0;
+    }
+
     // check if attribute list contains attributes applicable to different objects
     if (is_attribute_type_present(attr_list, attr_count, is_switch_attribute) && is_attribute_type_present(attr_list, attr_count, is_port_attribute))
     {
@@ -73,7 +85,7 @@ int is_attribute_list_valid(crud_attribute_t* attr_list, const uint32_t attr_cou
     uint32_t i;
     for (i = 0; i < attr_count; ++i)
     {
-        if (is_attribute_valid(attr_list[i]) != 1)
+        if ((is_attribute_valid(attr_list[i]) != 1) || (search_for_duplicate(attr_list, i, attr_count) != 0))
         {
             printf("is_attribute_list_valid: at least 1 attribute is invalid\n");
             return 0;
@@ -122,6 +134,21 @@ int is_read_only_attribute_present(crud_attribute_t* attr_list, const uint32_t a
         }
     }
     
+    return 0;
+}
+
+int search_for_duplicate(crud_attribute_t* attr_list, const int index, const uint32_t attr_count)
+{
+    int i;
+    crud_attr_id_t attr_to_compare = attr_list[index].id;
+    for (i = 0; i < attr_count; ++i)
+    {
+        if ((index != i) && (attr_to_compare == attr_list[i].id))
+        {
+            return 1;
+        }
+    }
+
     return 0;
 }
 

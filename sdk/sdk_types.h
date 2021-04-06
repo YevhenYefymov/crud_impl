@@ -51,4 +51,10 @@ typedef struct
     attr_value_t value;
 } attr_t; 
 
+typedef enum
+{
+    SWITCH_MAX_COUNT = 3,
+    PORT_MAX_COUNT = 32,
+} object_max_count_t;
+
 #endif // SDK_TYPES_H

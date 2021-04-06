@@ -26,6 +26,7 @@ object_list_t* create_list()
 	if (list)
 	{
 		list->head = 0;
+		list->size = 0;
 		return list;
 	}
 	return 0;
@@ -55,6 +56,8 @@ uint32_t add_node(object_list_t* list, attr_t* attr_list, const uint32_t attr_co
 		{
 			node->next = list->head;
 			list->head = node;
+			list->size++;
+			printf("add_node: new size = %d\n", list->size);
 			return node->id;
 		}
 		printf("add_node: node is null\n");
@@ -92,6 +95,7 @@ operation_result_t delete_node(object_list_t* list, const int id)
 			prev->next = node->next;
 		}
 		free(node);
+		list->size--;
 
         return RSLT_SUCCESS;
 	}

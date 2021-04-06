@@ -19,6 +19,7 @@ typedef struct object_list_entry object_list_entry_t;
 struct object_list
 {
 	object_list_entry_t* head;
+    uint32_t size;
 };
 typedef struct object_list object_list_t;
 

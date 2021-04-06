@@ -58,6 +58,24 @@ objects_table_entry_t* get_entry(const object_type_t key)
     }
 }
 
+int is_max_objects(objects_table_entry_t* list, const object_type_t key)
+{
+    const int list_size = list->objects->size;
+    object_max_count_t max_count = 0;
+    switch (key)
+    {
+        case SDK_OBJ_SWITCH:
+            max_count = SWITCH_MAX_COUNT;
+            break;
+        case SDK_OBJ_PORT:
+            max_count = PORT_MAX_COUNT;
+            break;
+        default:
+            return 1;
+    }
+    return (list_size == max_count);
+}
+
 uint32_t add_object(const object_type_t key, attr_t* attr_list, const uint32_t attr_count)
 {
     if (current_objects_table == 0)
@@ -68,8 +86,14 @@ uint32_t add_object(const object_type_t key, attr_t* attr_list, const uint32_t a
     objects_table_entry_t* list = current_objects_table->head;
     while (list != 0)
     {
-        if (list->key == key)
+        if ((list->key == key))
         {
+            if (is_max_objects(list, key) != 0)
+            {
+                printf("can't put more than %d of object %d\n", list->objects->size, key);
+                return 0;
+            }
+            printf("list size = %d\n", list->objects->size);
             return add_node(list->objects, attr_list, attr_count);
         }
 
@@ -77,7 +101,7 @@ uint32_t add_object(const object_type_t key, attr_t* attr_list, const uint32_t a
     }
     printf("entry with key %d isn't found in the objects table, create new entry\n", key);
 
-    object_list_t* new_list = create_list();    
+    object_list_t* new_list = create_list();
     add_entry(key, new_list);
 
     const uint32_t object_id = add_node(new_list, attr_list, attr_count);
