@@ -39,14 +39,19 @@ crud_status_t create_switch_object(crud_attribute_t* attr_list, uint32_t attr_co
 
 crud_status_t read_switch_object(crud_object_id_t *object_id, crud_attribute_t* attr_list, uint32_t attr_count)
 {
-    if (object_id == 0)
+    if (0 == object_id)
     {
-        printf("read_switch_object: object_id is 0");
+        printf("read_switch_object: object_id is 0\n");
         return CRUD_STATUS_FAILURE;
     }
-    if (attr_list == 0)
+    if (0 == attr_list)
     {
         printf("read_switch_object: attribute list is 0\n");
+        return CRUD_STATUS_FAILURE;
+    }
+    if (0 == attr_count)
+    {
+        printf("can't read zero attributes\n");
         return CRUD_STATUS_FAILURE;
     }
 
@@ -63,8 +68,8 @@ crud_status_t read_switch_object(crud_object_id_t *object_id, crud_attribute_t* 
     const uint32_t mask = 0xFFFF;
     const uint32_t id = *object_id & mask;
 
-    attr_t* sdk_attributes;
-    operation_result_t sdk_read_result = sdk_read_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), id, &sdk_attributes);
+    attr_t* sdk_attributes = get_sdk_attr_list(attr_list, attr_count);
+    operation_result_t sdk_read_result = sdk_read_object(crud_to_sdk_object_type(CRUD_OBJECT_TYPE_SWITCH), id, sdk_attributes, attr_count);
     
     if (sdk_read_result != RSLT_SUCCESS)
     {

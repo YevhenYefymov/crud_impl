@@ -10,7 +10,13 @@ object_list_entry_t* create_node(attr_t* attr_list, const uint32_t attr_count)
 	if (node)
 	{
 		node->next = 0;
-        node->attr_list = attr_list;
+
+		// key is attr type - it will be better for lookup
+		node->attr_list = malloc(sizeof(attr_t) * 4); // 4 is the max attribute count, should be defined somewhere for each type
+		for (int i = 0; i < attr_count; ++i)
+		{
+			node->attr_list[attr_list[i].id] = attr_list[i];
+		}
         node->attr_count = attr_count;
         node->id = ++object_id_generator;
 
